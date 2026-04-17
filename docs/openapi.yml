@@ -1,0 +1,26 @@
+openapi: 3.0.3
+
+info:
+  title: Federation of Agricultural Communities – API
+  version: 1.0.0
+  description: API for the national federation of agricultural collectives in Madagascar.
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+tags:
+  - name: Cooperatives
+    description: "Cooperative lifecycle: opening and closure"
+  - name: Members
+    description: "Member admission, transfer, and resignation"
+  - name: Contributions
+    description: "Periodic and ad-hoc member contributions"
+  - name: Treasury
+    description: "Account and balance management"
+  - name: Activities
+    description: "Cooperative and federation activity planning"
+  - name: Attendance
+    description: "Activity presence and attendance tracking"
+  - name: Statistics
+    description: "Reports and performance statistics"
