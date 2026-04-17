@@ -1,0 +1,192 @@
+{
+  "main": {
+    "id": "9ec8392c2956b491",
+    "type": "split",
+    "children": [
+      {
+        "id": "0a26699176ffe1c3",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "642916f98c61119f",
+            "type": "leaf",
+            "state": {
+              "type": "canvas",
+              "state": {
+                "file": "AGRICULTURAL_FEDERATION.canvas",
+                "viewState": {
+                  "x": 639.2346790729467,
+                  "y": -302.70902937440854,
+                  "zoom": -1.1604442549199367
+                }
+              },
+              "icon": "lucide-layout-dashboard",
+              "title": "AGRICULTURAL_FEDERATION"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "64a9ece688e98a72",
+    "type": "split",
+    "children": [
+      {
+        "id": "6916a8d5cab20864",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "8b141b98642cc760",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "d5ee435aa2143a7e",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "78428050c1c9a852",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "right": {
+    "id": "c94d93adc7151086",
+    "type": "split",
+    "children": [
+      {
+        "id": "f5ff7bd2657bcb9a",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "4d615647087e8c42",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "AGRICULTURAL_FEDERATION.canvas",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for AGRICULTURAL_FEDERATION"
+            }
+          },
+          {
+            "id": "3f36e7ff90ffbde2",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "AGRICULTURAL_FEDERATION.canvas",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from AGRICULTURAL_FEDERATION"
+            }
+          },
+          {
+            "id": "6076bc8e9b924181",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "d3dff34ae11f98ac",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "61c328ad1ffa0b47",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "AGRICULTURAL_FEDERATION.canvas",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of AGRICULTURAL_FEDERATION"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "642916f98c61119f",
+  "lastOpenFiles": []
+}
