@@ -1,0 +1,22 @@
+{
+	"nodes":[
+		{"id":"administration","type":"text","text":"## ADMINISTRATION\n\n- **id** `uuid` `pk`\n- **mandate_start** `date` `not null`\n- **mandate_end** `date` `not null`\n- **status** `enum` (active, inactive) `default active`","x":-320,"y":-520,"width":380,"height":240,"color":"#e8590c"},
+		{"id":"b6b4ea77e5fd53c9","type":"text","text":"## MANAGE","x":-207,"y":-100,"width":155,"height":60,"color":"#d63031"},
+		{"id":"78f6915a3864470f","type":"text","text":"## MANAGE","x":-1492,"y":-430,"width":161,"height":60,"color":"#d63031"},
+		{"id":"324725e519c8219f","type":"text","text":"## MEMBERSHIP","x":-880,"y":421,"width":200,"height":50,"color":"#9c36b5"},
+		{"id":"475ac81fb1b1c3b6","type":"text","text":"## COOPERATIVE_FEDERATION\n\n- **id** `uuid` `pk`\n- **admin_id** `uuid` `fk` `references` administration(id) `not null`","x":-1600,"y":360,"width":377,"height":172,"color":"#87CEEB"},
+		{"id":"coop","type":"text","text":"## COOPERATIVE\n\n- **id** `uuid` `pk`\n- **name** `varchar(50)` `unique` `not null`\n- **specialty** `varchar(20)` `not null`\n- **creation_date** `date` `not null`\n- **location** `varchar(30)` `not null`\n- **created_at** `timestamp` `default now()`\n- **coop_fed** `uuid` `fk` references cooperative(id)\n- **status** `enum` (active, inactive) `default active`\n- **admin_id** `uuid` `fk` references administration(id) `not null`","x":-300,"y":206,"width":340,"height":480,"color":"#1971c2"},
+		{"id":"membership","type":"text","text":"## MEMBERSHIP\n\n- **id** `uuid` `pk`\n- **coop_id** `uuid` `fk` references cooperative(id)\n- **member_id** `uuid` `fk` references member(id)\n- **joined_at** `timestamp` `default now()`\n- **status** `enum` (active, inactive) `default active`","x":480,"y":286,"width":400,"height":320,"color":"#9c36b5"},
+		{"id":"member","type":"text","text":"## MEMBER\n\n- **id** `uuid` `pk`\n- **first_name** `varchar(50)` `not null`\n- **last_name** `varchar(50)` `not null`\n- **birth_date** `date` `not null`\n- **gender** `enum` (M, F) `not null`\n- **address** `varchar(100)` `not null`\n- **phone** `varchar(15)` `unique` `not null`\n- **profession** `varchar(50)` `not null`\n- **email** `varchar(100)` `unique` `not null`\n- **role** `enum` (president, vice_president, treasurer, secretary, confirmed_member, junior_member) `default junior_member`\n- **created_at** `timestamp` `default now()`","x":1340,"y":208,"width":420,"height":475,"color":"#2f9e44"}
+	],
+	"edges":[
+		{"id":"edge-coop-membership","fromNode":"coop","fromSide":"right","toNode":"membership","toSide":"left","toEnd":"crow","label":"10,N"},
+		{"id":"edge-membership-member","fromNode":"membership","fromSide":"right","toNode":"member","toSide":"left","toEnd":"crow","label":"1,N"},
+		{"id":"b981d86f736f889f","fromNode":"administration","fromSide":"bottom","toNode":"b6b4ea77e5fd53c9","toSide":"top","toEnd":"none","label":"1,1"},
+		{"id":"c9d116a8ab6940d7","fromNode":"b6b4ea77e5fd53c9","fromSide":"bottom","toNode":"coop","toSide":"top","toEnd":"none","label":"1,1"},
+		{"id":"3956fce1ea046a8f","fromNode":"324725e519c8219f","fromSide":"right","toNode":"coop","toSide":"left","toEnd":"none","label":"1,1"},
+		{"id":"d28464b2c78eea0a","fromNode":"324725e519c8219f","fromSide":"left","toNode":"475ac81fb1b1c3b6","toSide":"right","toEnd":"none","label":"1,N"},
+		{"id":"c533301bef6fc3ea","fromNode":"78f6915a3864470f","fromSide":"right","toNode":"administration","toSide":"left","toEnd":"none","label":"1,1"},
+		{"id":"a607463f189bf8b8","fromNode":"78f6915a3864470f","fromSide":"bottom","toNode":"475ac81fb1b1c3b6","toSide":"top","toEnd":"none","label":"1,1"}
+	]
+}
