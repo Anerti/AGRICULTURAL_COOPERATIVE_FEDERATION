@@ -9,8 +9,7 @@
 		{"id":"3a30b6f6c0dbe086","type":"text","text":"## ELECTION\n\n- **id** `uuid` `pk`\n- **type** `enum` (president, vice_president, treasurer, secretary) `not null`\n- **start_date** `datetime` `default now()`\n- **end_date** `datetime` `not null`\n- **description** `text` `not null`\n","x":2647,"y":-1160,"width":520,"height":260,"color":"#0984e3"},
 		{"id":"49b542e68073ef65","type":"text","text":"## OWN","x":-209,"y":1219,"width":118,"height":60,"color":"#e74c3c"},
 		{"id":"66eda3dd9d404136","type":"text","text":"##   PAY","x":-840,"y":-15,"width":106,"height":50,"color":"#e74c3c"},
-		{"id":"membership","type":"text","text":"## MEMBERSHIP\n\n- **id** `uuid` `pk`\n- **coop_id** `uuid` `fk` references cooperative(id)\n- **member_id** `uuid` `fk` references member(id)\n- **joined_at** `timestamp` `default now()`\n- **status** `enum` (active, inactive) `default active`","x":481,"y":363,"width":440,"height":254,"color":"#0984e3"},
-		{"id":"member","type":"text","text":"## MEMBER\n\n- **id** `uuid` `pk`\n- **first_name** `varchar(50)` `not null`\n- **last_name** `varchar(50)` `not null`\n- **birth_date** `date` `not null`\n- **gender** `enum` (M, F) `not null`\n- **address** `varchar(100)` `not null`\n- **phone** `varchar(15)` `unique` `not null`\n- **profession** `varchar(50)` `not null`\n- **email** `varchar(100)` `unique` `not null`\n- **role** `enum` (president, vice_president, treasurer, secretary, confirmed_member, junior_member) `default junior_member`\n- **created_at** `timestamp` `default now()`","x":1340,"y":264,"width":540,"height":452,"color":"#0984e3"},
+		{"id":"member","type":"text","text":"## MEMBER\n\n- **id** `uuid` `pk`\n- **first_name** `varchar(50)` `not null`\n- **last_name** `varchar(50)` `not null`\n- **birth_date** `date` `not null`\n- **gender** `enum` (M, F) `not null`\n- **address** `varchar(100)` `not null`\n- **phone** `varchar(15)` `unique` `not null`\n- **profession** `varchar(50)` `not null`\n- **email** `varchar(100)` `unique` `not null`\n- **admin_id** `fk` references administration(id)\n- **joined_at** `timestamp` `default()` `now()`\n- **coop_id** `uuid` `fk` references cooperative(id)\n- **status** `enum` (active, inactive) `default` `active`","x":1340,"y":264,"width":540,"height":456,"color":"#0984e3"},
 		{"id":"5bd4ea13ebd7e69d","type":"text","text":"## GIVE","x":2260,"y":465,"width":100,"height":50,"color":"#e74c3c"},
 		{"id":"144efb81f90dcce0","type":"text","text":"## VOTE\n\n- **id** `uuid` `pk`\n- **candidate_id** `fk` references candidate(id)\n- **election_id** `fk` references election(id)\n- **voted_at** `timestamp` `default now()`\n- **voter_id** `uuid` `fk` references member(id)","x":2660,"y":366,"width":500,"height":248,"color":"#0984e3"},
 		{"id":"324725e519c8219f","type":"text","text":"## MEMBERSHIP","x":-1140,"y":465,"width":200,"height":50,"color":"#e74c3c"},
@@ -24,16 +23,18 @@
 		{"id":"296443344d3e7b9a","type":"text","text":"## OWN","x":-2025,"y":863,"width":124,"height":63,"color":"#e74c3c"},
 		{"id":"d56191aaed405ffb","type":"text","text":"## CASH_BOX\n\n- **id** `uuid` `pk`\n- **title** `varchar(50)` `not null`\n- **created_at** `timestamp` `default` `now()`\n- **description** `text`","x":-2215,"y":1184,"width":505,"height":256,"color":"#0984e3"},
 		{"id":"b2211f33d93d03c9","type":"text","text":"## COOPERATIVE_BANK_ACCOUNT\n\n- **id** `varchar(23)` `pk`\n- **bank_name** `varchar(30)` `not null`\n- **title** `varchar(50)` `not null`\n- **created_at** `date` `default` `now()` `not null`\n- **description** `text`\n- **coop_id** `uuid` `fk` references cooperative(id) `not null`","x":-2215,"y":1632,"width":505,"height":240,"color":"#0984e3"},
-		{"id":"98d60d5907bedcfe","type":"text","text":"## ADMIN_MEMBERSHIP\n\n- **id** `uuid` `pk`\n- **admin_id** `uuid` `fk` references administration(id)\n- **member_id** `uuid` `fk` references member(id)","x":1340,"y":-488,"width":520,"height":176,"color":"#0984e3"},
 		{"id":"78f6915a3864470f","type":"text","text":"## MANAGE","x":-2043,"y":-430,"width":161,"height":60,"color":"#e74c3c"},
 		{"id":"17ccc6485b58be82","type":"text","text":"## MOBILE_MONEY_ACCOUNT\n\n- **id** `uuid` `pk`\n- **title** `varchar(50)` `not null`\n- **created_at** `date` `default` `now()` `not null`\n- **description** `text`\n- **coop_id** `uuid` `fk` references cooperative(id) `not null`\n- **service_provider** `enum` (orange_money, mvola, airtel_money)","x":-439,"y":1612,"width":579,"height":300,"color":"#0984e3"},
 		{"id":"41731976e3bb9148","type":"text","text":"## MEMBERSHIP_FEES\n\n- **id** `uuid` `pk`\n- **created_at** `timestamp` `default` `now()`\n- **payment_method** `enum` (cash, bank transfer, mobile payment)\n- **type** `enum` (monthly, yearly, one-time)\n- **membership_id** `uuid` `fk` references membership(id) `not null`\n- **description** `text` `not null`\n- **is_paid** `boolean` `not null` `default` `false`","x":423,"y":1612,"width":557,"height":300,"color":"#0984e3"},
 		{"id":"d1c6747403f37b88","type":"text","text":"##   PAY","x":649,"y":1199,"width":106,"height":50,"color":"#e74c3c"},
-		{"id":"457d4ab5af75e9ed","type":"text","text":"## OWN","x":-1202,"y":1279,"width":124,"height":63,"color":"#e74c3c"}
+		{"id":"457d4ab5af75e9ed","type":"text","text":"## OWN","x":-1202,"y":1279,"width":124,"height":63,"color":"#e74c3c"},
+		{"id":"ef4c6026cf086c98","type":"text","text":"## ROLE\n\n- **id** `uuid` `pk`\n- **role** `enum` (president, vice_president, treasurer, secretary, confirmed_member, junior_member) `default junior_member`","x":1340,"y":1612,"width":540,"height":300,"color":"#0984e3"},
+		{"id":"df6ead831d70e238","type":"text","text":"##   ACTING\n\n- **id** `uuid` `pk`\n- **member_id** `fk` references member(id) `not null`\n- **role_id** `fk` references role(id) `not null`\n- **start_date** `datetime` `default` `now()` `not null`\n- **end_date** `datetime` `default` `now()`","x":1340,"y":1010,"width":540,"height":239,"color":"#e74c3c"},
+		{"id":"membership","type":"text","text":"## MEMBERSHIP\n","x":600,"y":466,"width":200,"height":51,"color":"1"}
 	],
 	"edges":[
 		{"id":"edge-coop-membership","fromNode":"coop","fromSide":"right","toNode":"membership","toSide":"left","toEnd":"crow","color":"#e74c3c","label":"N,N"},
-		{"id":"edge-membership-member","fromNode":"membership","fromSide":"right","toNode":"member","toSide":"left","toEnd":"crow","color":"#e74c3c","label":"1,N"},
+		{"id":"edge-membership-member","fromNode":"membership","fromSide":"right","toNode":"member","toSide":"left","toEnd":"crow","color":"#e74c3c","label":"1,1"},
 		{"id":"b981d86f736f889f","fromNode":"administration","fromSide":"bottom","toNode":"b6b4ea77e5fd53c9","toSide":"top","toEnd":"none","color":"#e74c3c","label":"1,1"},
 		{"id":"c9d116a8ab6940d7","fromNode":"b6b4ea77e5fd53c9","fromSide":"bottom","toNode":"coop","toSide":"top","toEnd":"none","color":"#e74c3c","label":"1,1"},
 		{"id":"3956fce1ea046a8f","fromNode":"324725e519c8219f","fromSide":"right","toNode":"coop","toSide":"left","toEnd":"none","color":"#e74c3c","label":"1,1"},
@@ -53,8 +54,6 @@
 		{"id":"5312358a50c87bca","fromNode":"494f7a2fcc927049","fromSide":"left","toNode":"b2211f33d93d03c9","toSide":"right","toEnd":"none","color":"#e74c3c","label":"1,1"},
 		{"id":"952783ee7017139a","fromNode":"49b542e68073ef65","fromSide":"top","toNode":"coop","toSide":"bottom","toEnd":"none","color":"#e74c3c","label":"1,N"},
 		{"id":"32b4d6fb22f5c181","fromNode":"49b542e68073ef65","fromSide":"bottom","toNode":"17ccc6485b58be82","toSide":"top","toEnd":"none","color":"#e74c3c","label":"1,1"},
-		{"id":"3faf5164860bdb89","fromNode":"administration","fromSide":"right","toNode":"98d60d5907bedcfe","toSide":"left","toEnd":"none","color":"#e74c3c","label":"N,N"},
-		{"id":"10c4f764f2dc3f02","fromNode":"98d60d5907bedcfe","fromSide":"bottom","toNode":"member","toSide":"top","toEnd":"none","color":"#e74c3c","label":"N,N"},
 		{"id":"7aee7ee860b24561","fromNode":"296443344d3e7b9a","fromSide":"bottom","toNode":"d56191aaed405ffb","toSide":"top","toEnd":"none","color":"#e74c3c","label":"1,1"},
 		{"id":"919ea981677a3a4a","fromNode":"475ac81fb1b1c3b6","fromSide":"bottom","toNode":"296443344d3e7b9a","toSide":"top","toEnd":"none","color":"#e74c3c","label":"1,1"},
 		{"id":"b1fd98d557ae6f6d","fromNode":"475ac81fb1b1c3b6","fromSide":"left","toNode":"fff1dc918901396c","toSide":"right","toEnd":"none","color":"#e74c3c","label":"1,N"},
@@ -63,6 +62,9 @@
 		{"id":"d320389e1898e501","fromNode":"4becdc972732a8a4","fromSide":"left","toNode":"0ebd2ea6367d5bc1","toSide":"right","toEnd":"none","color":"#e74c3c","label":"1,1"},
 		{"id":"966dad99cb4fdb73","fromNode":"66eda3dd9d404136","fromSide":"left","toNode":"c9088acc8b0331d7","toSide":"right","toEnd":"none","color":"#e74c3c","label":"1,1"},
 		{"id":"4bf2d48126bf8c36","fromNode":"66eda3dd9d404136","fromSide":"right","toNode":"coop","toSide":"top","toEnd":"none","color":"#e74c3c","label":"1,N"},
-		{"id":"366868ea339d334d","fromNode":"d1c6747403f37b88","fromSide":"bottom","toNode":"41731976e3bb9148","toSide":"top","toEnd":"none","color":"#e74c3c","label":"1,1"}
+		{"id":"366868ea339d334d","fromNode":"d1c6747403f37b88","fromSide":"bottom","toNode":"41731976e3bb9148","toSide":"top","toEnd":"none","color":"#e74c3c","label":"1,1"},
+		{"id":"6ae02c18cf18fc2f","fromNode":"member","fromSide":"bottom","toNode":"df6ead831d70e238","toSide":"top","toEnd":"none","color":"1","label":"1,N"},
+		{"id":"dedb82fddad9a1f3","fromNode":"df6ead831d70e238","fromSide":"bottom","toNode":"ef4c6026cf086c98","toSide":"top","toEnd":"none","color":"1","label":"1,N"},
+		{"id":"4f54d2f1e5427928","fromNode":"membership","fromSide":"top","toNode":"administration","toSide":"right","toEnd":"none","color":"1","label":"N,N"}
 	]
 }
