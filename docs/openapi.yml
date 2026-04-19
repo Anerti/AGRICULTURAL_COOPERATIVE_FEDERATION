@@ -24,3 +24,168 @@ tags:
     description: "Activity presence and attendance tracking"
   - name: Statistics
     description: "Reports and performance statistics"
+
+components:
+  schemas:
+    StatusEnum:
+      type: string
+      enum: [active, inactive]
+      description: Operational status used across multiple entities
+
+    GenderEnum:
+      type: string
+      enum: [M, F]
+      description: Member gender – Male or Female
+
+    PaymentMethodEnum:
+      type: string
+      enum: [cash, bank_transfer, mobile_money]
+      description: Accepted payment methods for contributions and admission fees
+
+    OfficerRoleEnum:
+      type: string
+      enum: [president, vice_president, treasurer, secretary]
+      description: Leadership roles assigned per mandate within a cooperative
+
+    MemberRoleEnum:
+      type: string
+      enum: [confirmed, junior]
+      description: Junior member new admitted and confirmed member experienced member
+
+    Cooperative:
+      type: object
+      description: Core fields shared by create and response schemas
+      required: [name, specialty, location, creation_date]
+      properties:
+        name:
+          type: string
+          maxLength: 50
+          description: Unique name of the cooperative
+          example: "Collectivité Vary Atsimo"
+        specialty:
+          type: string
+          maxLength: 80
+          description: Agricultural specialty of the cooperative
+          example: "Riziculture"
+        location:
+          type: string
+          maxLength: 30
+          description: City where the cooperative operates
+          example: "Antananarivo"
+        creation_date:
+          type: string
+          format: date
+          description: Official founding date of the cooperative
+          example: "2025-01-15"
+        status:
+          $ref: "#/components/schemas/StatusEnum"
+
+    MemberPersonalInfo:
+      type: object
+      description: Personal information required for all member registrations
+      required:
+        - first_name
+        - last_name
+        - birth_date
+        - gender
+        - address
+        - phone
+        - profession
+        - email
+      properties:
+        first_name:
+          type: string
+          maxLength: 50
+          example: "Hery"
+        last_name:
+          type: string
+          maxLength: 50
+          example: "Rakoto"
+        birth_date:
+          type: string
+          format: date
+          example: "1995-06-14"
+        gender:
+          $ref: "#/components/schemas/GenderEnum"
+        address:
+          type: string
+          maxLength: 100
+          example: "Lot II K 14, Antananarivo"
+        phone:
+          type: string
+          maxLength: 15
+          description: Unique phone number
+          example: "+261341234567"
+        profession:
+          type: string
+          maxLength: 50
+          example: "Agriculteur"
+        email:
+          type: string
+          format: email
+          maxLength: 100
+          example: "heryrajaonarimampianina@yahoo.com"
+
+    SuccessResponse:
+      type: object
+      description: Standard success payload returned on request success
+      properties:
+        message:
+          type: string
+          description: Success response message
+          example: Cooperative successfully created
+
+    ErrorResponse:
+      type: object
+      description: Standard error payload returned on all 4xx and 5xx responses
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          description: Machine-readable error cod
+          example: MEMBER_NOT_FOUND
+        message:
+          type: string
+          description: Human-readable error description
+          example: A cooperative already exists with this name
+        details:
+          type: array
+          description: Optional list of field-level validation errors
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                example: name
+              issue:
+                type: string
+                example: "must be unique"
+
+  responses:
+    OK:
+      description: All is OK
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SuccessResponse"
+
+    BadRequest:
+      description: 400 - Malformed request - Client error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    NotFound:
+      description: 404 – Requested resource does not exist
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    InternalError:
+      description: 500 – Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
