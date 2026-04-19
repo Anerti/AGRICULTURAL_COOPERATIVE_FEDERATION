@@ -25,11 +25,43 @@ tags:
   - name: Statistics
     description: "Reports and performance statistics"
 
+paths:
+  /cooperatives:
+    get:
+      summary: List all cooperative
+      tags: [Cooperatives]
+      parameters:
+        - name: location
+          in: query
+          description: Filter cooperative by location
+          required: false
+          schema:
+            type: string
+            example: Antananarivo
+        - name: speciality
+          in: query
+          description: Filter cooperative by agricultural speciality
+          required: false
+          schema:
+            type: string
+            example: Riziculture
+        - name: status
+          in: query
+          description: Filter cooperatives by operational status
+          required: false
+          schema:
+            $ref: "#/components/schemas/StatusEnum"
+      responses:
+        200:
+          description: List of all cooperative
+
+
 components:
   schemas:
     StatusEnum:
       type: string
       enum: [active, inactive]
+      default: active
       description: Operational status used across multiple entities
 
     GenderEnum:
@@ -49,7 +81,8 @@ components:
 
     MemberRoleEnum:
       type: string
-      enum: [confirmed, junior]
+      enum: [confirmed_member, junior_member]
+      default: junior_member
       description: Junior member new admitted and confirmed member experienced member
 
     Cooperative:
@@ -125,6 +158,22 @@ components:
           format: email
           maxLength: 100
           example: "heryrajaonarimampianina@yahoo.com"
+        role:
+          $ref: "#/components/schemas/MemberRoleEnum"
+
+    Administration:
+      type: object
+      description: Cooperative administration
+      required: [mandate_end, mandate_start, status]
+      properties:
+        mandate_start:
+          type: date
+          example: "2025-01-15"
+        mandate_end:
+          type: date
+          example: "2026-01-15"
+        status:
+          $ref: "#/components/schemas/StatusEnum"
 
     SuccessResponse:
       type: object
