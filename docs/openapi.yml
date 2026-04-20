@@ -64,8 +64,61 @@ paths:
         500:
           $ref: "#/components/responses/InternalError"
 
+    post:
+      operationId: createCooperative
+      summary: Request the opening of a new cooperative
+      tags: [ Cooperative ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CooperativeCreateRequest"
+            examples:
+              Antananarivo_rice_cooperative:
+                summary: Antananarivo's rice cooperative
+                value:
+                  name: Collectivité Vary Atsimo
+                  speciality: Riziculture
+                  location: Antananarivo
+                  creation_date: 2026-01-01
+                  initial_officers:
+                    - member_id: 12345678-qwertyui-1278378-2930
+                      role: president
+                    - member_id: 12837889-3847982-83479-23748
+                      role: vise_president
+                    - member_id: 293480239-2983492838-2349-sdfis
+                      role: treasurer
+                    - member_id: 2374923-839248023-239482-234923
+                      role: secretary
+                  initial_member_ids:
+                    - 293840923-238948239-3942042903840943
+                    - 98237489-2389489-djfklsdj-23892jklsj
+                    - 9830294-23948239kjdf-2384928-sfsfjkd
+                    - 923489-s89789-sdf89789-s8d9f789sdf89
+                    - 2384789-28934082093-8234789-dfosifio
+                    - 90238409-283049238-283948-slfjskldjj
+      responses:
+        201:
+          description: Cooperative successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CooperativeResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        409:
+          description: Cooperative with this name already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        500:
+          $ref: "#/components/responses/InternalError"
+
 components:
   schemas:
+    # Enums
     StatusEnum:
       type: string
       enum: [ active, inactive ]
@@ -104,6 +157,7 @@ components:
           type: integer
           example: 20
 
+    # Schema validation
     Cooperative:
       type: object
       description: Core fields shared by create and response schemas
@@ -198,6 +252,38 @@ components:
         status:
           $ref: "#/components/schemas/StatusEnum"
 
+    OfficerAssignment:
+      type: object
+      description: Maps a member to a leadership role for the initial mandate
+      required: [ member_id, role ]
+      properties:
+        member_id:
+          type: string
+          format: uuid
+        role:
+          $ref: "#/components/schemas/OfficerRoleEnum"
+
+    CooperativeCreateRequest:
+      allOf:
+        - $ref: "#/components/schemas/Cooperative"
+          type: object
+          required: [initial_officers, initial_member_ids]
+          properties:
+            initial_officers:
+              type: array
+              description: The four officers for the first mandate.
+              minItems: 5
+              items:
+                $ref: "#/components/schemas/OfficerAssignment"
+            initial_member_ids:
+              type: array
+              description: UUIDs of all founding members
+              minItems: 10
+              items:
+                type: string
+                format: uuid
+
+    # Responses
     CooperativeResponse:
       allOf:
         - $ref: "#/components/schemas/Cooperative"
