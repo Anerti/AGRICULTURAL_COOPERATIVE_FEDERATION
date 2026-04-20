@@ -28,8 +28,9 @@ tags:
 paths:
   /cooperatives:
     get:
+      operationId: listCooperatives
       summary: List all cooperative
-      tags: [Cooperatives]
+      tags: [ Cooperatives ]
       parameters:
         - name: location
           in: query
@@ -53,42 +54,60 @@ paths:
             $ref: "#/components/schemas/StatusEnum"
       responses:
         200:
-          description: List of all cooperative
-
+          description: Paginated list of cooperatives
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CooperativeListResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        500:
+          $ref: "#/components/responses/InternalError"
 
 components:
   schemas:
     StatusEnum:
       type: string
-      enum: [active, inactive]
+      enum: [ active, inactive ]
       default: active
       description: Operational status used across multiple entities
 
     GenderEnum:
       type: string
-      enum: [M, F]
+      enum: [ M, F ]
       description: Member gender – Male or Female
 
     PaymentMethodEnum:
       type: string
-      enum: [cash, bank_transfer, mobile_money]
+      enum: [ cash, bank_transfer, mobile_money ]
       description: Accepted payment methods for contributions and admission fees
 
     OfficerRoleEnum:
       type: string
-      enum: [president, vice_president, treasurer, secretary]
+      enum: [ president, vice_president, treasurer, secretary ]
       description: Leadership roles assigned per mandate within a cooperative
 
     MemberRoleEnum:
       type: string
-      enum: [confirmed_member, junior_member]
+      enum: [ confirmed_member, junior_member ]
       default: junior_member
       description: Junior member new admitted and confirmed member experienced member
+
+    PaginationMeta:
+      type: object
+      description: Paginated list responses
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
 
     Cooperative:
       type: object
       description: Core fields shared by create and response schemas
-      required: [name, specialty, location, creation_date]
+      required: [ name, specialty, location, creation_date ]
       properties:
         name:
           type: string
@@ -107,9 +126,8 @@ components:
           example: "Antananarivo"
         creation_date:
           type: string
-          format: date
+          format: date-time
           description: Official founding date of the cooperative
-          example: "2025-01-15"
         status:
           $ref: "#/components/schemas/StatusEnum"
 
@@ -160,20 +178,53 @@ components:
           example: "heryrajaonarimampianina@yahoo.com"
         role:
           $ref: "#/components/schemas/MemberRoleEnum"
+        created_at:
+          type: string
+          format: date-time
 
     Administration:
       type: object
       description: Cooperative administration
-      required: [mandate_end, mandate_start, status]
+      required: [ mandate_end, mandate_start, status ]
       properties:
         mandate_start:
-          type: date
+          type: string
+          format: date
           example: "2025-01-15"
         mandate_end:
-          type: date
+          type: string
+          format: date
           example: "2026-01-15"
         status:
           $ref: "#/components/schemas/StatusEnum"
+
+    CooperativeResponse:
+      allOf:
+        - $ref: "#/components/schemas/Cooperative"
+        - type: object
+          required: [ id, status, created_at ]
+          properties:
+            id:
+              type: string
+              format: uuid
+              description: Auto-generated unique identifier
+              example: "c1d2e3f4-0000-0000-0000"
+            status:
+              $ref: "#/components/schemas/StatusEnum"
+            created_at:
+              type: string
+              format: date-time
+              description: Timestamp when the cooperative was registered
+
+    CooperativeListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/CooperativeResponse"
+        meta:
+          $ref: "#/components/schemas/PaginationMeta"
 
     SuccessResponse:
       type: object
@@ -187,7 +238,7 @@ components:
     ErrorResponse:
       type: object
       description: Standard error payload returned on all 4xx and 5xx responses
-      required: [code, message]
+      required: [ code, message ]
       properties:
         code:
           type: string
