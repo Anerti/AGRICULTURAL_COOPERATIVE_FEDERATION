@@ -116,7 +116,133 @@ paths:
         500:
           $ref: "#/components/responses/InternalError"
 
+  /cooperatives/{cooperativeId}/members:
+    parameters:
+      - $ref: "#/components/parameters/CooperativeIdParam"
+
+    get:
+      operationId: listCooperativeMembers
+      summary: List members of a cooperative
+      description: Returns a paginated list of members
+      tags: [ Members ]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+        - name: status
+          in: query
+          description: Filter by membership status
+          required: false
+          schema:
+            $ref: "#/components/schemas/StatusEnum"
+        - name: role
+          in: query
+          description: Filter by member role
+          required: false
+          schema:
+            $ref: "#/components/schemas/MemberRoleEnum"
+      responses:
+        "200":
+          description: Paginated list of cooperative members
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MembershipListResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+    post:
+      operationId: admitMember
+      summary: Admit a new member into a cooperative
+      tags: [ Members ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MemberAdmissionRequest"
+            examples:
+              new_junior_member:
+                summary: Admission of a new junior member
+                value:
+                  sponsor_id: 287349-238948f-sdf809f-sdfi234
+                  payment_reference: MV-2025-00123
+                  payment_method: mobile_money
+                  member:
+                    first_name: Hery
+                    last_name: Rajao
+                    birth_date: "1995-06-14"
+                    gender: M
+                    address: Lot II K 14, Antananarivo
+                    phone: "+261341234567"
+                    profession: Agriculteur
+                    email: "rajao@gmail.com"
+      responses:
+        201:
+          description: Member successfully admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MembershipResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        404:
+          $ref: "#/components/responses/NotFound"
+        409:
+          description: Member with this email or phone already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        500:
+          $ref: "#/components/responses/InternalError"
+
 components:
+  # Params
+  parameters:
+    CooperativeIdParam:
+      name: cooperativeId
+      in: path
+      required: true
+      description: Unique UUID of the cooperative
+      schema:
+        type: string
+        format: uuid
+        example: "c1d2e3f4-0000-0000-0000-000000000001"
+
+    MemberIdParam:
+      name: memberId
+      in: path
+      required: true
+      description: Unique UUID of the member
+      schema:
+        type: string
+        format: uuid
+        example: "a1b2c3d4-0000-0000-0000-000000000001"
+
+    # Pagination params
+    PageParam:
+      name: page
+      in: query
+      required: false
+      description: Page number for pagination (1-indexed)
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+
+    LimitParam:
+      name: limit
+      in: query
+      required: false
+      description: Number of results per page
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
   schemas:
     # Enums
     StatusEnum:
@@ -263,11 +389,12 @@ components:
         role:
           $ref: "#/components/schemas/OfficerRoleEnum"
 
+    # Body Request
     CooperativeCreateRequest:
       allOf:
         - $ref: "#/components/schemas/Cooperative"
           type: object
-          required: [initial_officers, initial_member_ids]
+          required: [ initial_officers, initial_member_ids ]
           properties:
             initial_officers:
               type: array
@@ -282,6 +409,27 @@ components:
               items:
                 type: string
                 format: uuid
+
+    MemberAdmissionRequest:
+      type: object
+      description: |
+        Payload to admit a new member into a cooperative.
+        Admission fee of 50,000 MGA must be settled before submission.
+      required: [ sponsor_id, payment_reference, payment_method, member ]
+      properties:
+        sponsor_id:
+          type: string
+          format: uuid
+          description: UUID of the confirmed_member.
+          example: "8279-23490c-sjdfhjk-3840923"
+        payment_reference:
+          type: string
+          description: Transaction reference for the 50,000 MGA admission fee
+          example: "MV-2025-00123"
+        payment_method:
+          $ref: "#/components/schemas/PaymentMethodEnum"
+        member:
+          $ref: "#/components/schemas/MemberPersonalInfo"
 
     # Responses
     CooperativeResponse:
@@ -309,6 +457,63 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/CooperativeResponse"
+        meta:
+          $ref: "#/components/schemas/PaginationMeta"
+
+    MemberResponse:
+      allOf:
+        - $ref: "#/components/schemas/MemberPersonalInfo"
+        - type: object
+          required: [ id, created_at ]
+          properties:
+            id:
+              type: string
+              format: uuid
+              example: "a1b2c3d4-0000-0000-0000-000000000001"
+            created_at:
+              type: string
+              format: date-time
+
+    MembershipResponse:
+      type: object
+      description: A membership record linking a member to a cooperative
+      required: [ id, cooperative_id, member, joined_at, status ]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: UUID of the membership record
+        cooperative_id:
+          type: string
+          format: uuid
+        member:
+          $ref: "#/components/schemas/MemberResponse"
+        role:
+          $ref: "#/components/schemas/MemberRoleEnum"
+        joined_at:
+          type: string
+          format: date-time
+          description: Timestamp when the member joined this cooperative
+        status:
+          $ref: "#/components/schemas/StatusEnum"
+
+      MembershipListResponse:
+        type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: "#/components/schemas/MembershipResponse"
+          meta:
+            $ref: "#/components/schemas/PaginationMeta"
+
+    MembershipListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/MembershipResponse"
         meta:
           $ref: "#/components/schemas/PaginationMeta"
 
