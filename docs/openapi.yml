@@ -197,6 +197,61 @@ paths:
         500:
           $ref: "#/components/responses/InternalError"
 
+  /cooperatives/{cooperativeId}/members/{memberId}/transfer:
+    parameters:
+      - $ref: "#/components/parameters/CooperativeIdParam"
+      - $ref: "#/components/parameters/MemberIdParam"
+
+    post:
+      operationId: transferMember
+      summary: Transfer a member to another cooperative
+      tags: [ Members ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MemberTransferRequest"
+      responses:
+        200:
+          description: Transfer successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MembershipResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/InternalError"
+
+  /cooperatives/{cooperativeId}/members/{memberId}/resign:
+    parameters:
+      - $ref: "#/components/parameters/CooperativeIdParam"
+      - $ref: "#/components/parameters/MemberIdParam"
+    post:
+      operationId: resignMember
+      summary: Process a member resignation
+      tags: [ Members ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MembershipResponse"
+      responses:
+        200:
+          description: Resignation recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MembershipResponse"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/InternalError"
+
 components:
   # Params
   parameters:
@@ -430,6 +485,22 @@ components:
         member:
           $ref: "#/components/schemas/MemberPersonalInfo"
 
+    MemberTransferRequest:
+      type: object
+      description: Request to move a member to a different cooperative
+      required: [ target_cooperative_id ]
+      properties:
+        target_cooperative_id:
+          type: string
+          format: uuid
+          description: UUID of the cooperative
+          example: "374923-27389472-sdfk-2342"
+        reason:
+          type: string
+          description: Optional reason
+          maxLength: 255
+          example: "Moving to another town"
+
     # Responses
     CooperativeResponse:
       allOf:
@@ -495,16 +566,6 @@ components:
           description: Timestamp when the member joined this cooperative
         status:
           $ref: "#/components/schemas/StatusEnum"
-
-      MembershipListResponse:
-        type: object
-        properties:
-          data:
-            type: array
-            items:
-              $ref: "#/components/schemas/MembershipResponse"
-          meta:
-            $ref: "#/components/schemas/PaginationMeta"
 
     MembershipListResponse:
       type: object
