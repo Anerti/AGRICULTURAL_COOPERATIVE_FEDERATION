@@ -1,118 +1,117 @@
 openapi: 3.0.3
 
 info:
-  title: Federation of Agricultural Communities – API
+  title: Agricultural Federation API
   version: 1.0.0
-  description: API for the national federation of agricultural collectives in Madagascar.
+  description: REST API for the national federation of agricultural cooperatives in Madagascar.
 
 servers:
-  - url: http://localhost:8080
-    description: Local development server
+  - url: http://localhost:8080/v2
+    description: Development
 
 tags:
   - name: Cooperatives
-    description: "Cooperative lifecycle: opening and closure"
+    description: Cooperative lifecycle management
   - name: Members
-    description: "Member admission, transfer, and resignation"
+    description: Member admission, transfer, and resignation
+  - name: Mandates
+    description: Mandate management for cooperatives and federation
   - name: Contributions
-    description: "Periodic and ad-hoc member contributions"
+    description: Periodic and one-time member contributions
   - name: Treasury
-    description: "Account and balance management"
+    description: Account and balance management
   - name: Activities
-    description: "Cooperative and federation activity planning"
+    description: Activity planning for cooperatives and federation
   - name: Attendance
-    description: "Activity presence and attendance tracking"
+    description: Activity attendance tracking
   - name: Statistics
-    description: "Reports and performance statistics"
+    description: Reports and statistics
+  - name: Federation
+    description: Federation leadership and administration
 
 paths:
+
   /cooperatives:
     get:
       operationId: listCooperatives
-      summary: List all cooperative
-      tags: [ Cooperatives ]
+      summary: List all cooperatives
+      tags: [Cooperatives]
       parameters:
         - name: location
           in: query
-          description: Filter cooperative by location
-          required: false
           schema:
             type: string
-            example: Antananarivo
         - name: speciality
           in: query
-          description: Filter cooperative by agricultural speciality
-          required: false
           schema:
             type: string
-            example: Riziculture
         - name: status
           in: query
-          description: Filter cooperatives by operational status
-          required: false
           schema:
             $ref: "#/components/schemas/StatusEnum"
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
       responses:
-        200:
-          description: Paginated list of cooperatives
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/CooperativeListResponse"
-        400:
+        "200":
+          $ref: "#/components/responses/CooperativeListOK"
+        "400":
           $ref: "#/components/responses/BadRequest"
-        500:
+        "500":
           $ref: "#/components/responses/InternalError"
 
     post:
       operationId: createCooperative
       summary: Request the opening of a new cooperative
-      tags: [ Cooperatives ]
+      tags: [Cooperatives]
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/CooperativeCreateRequest"
-            examples:
-              Antananarivo_rice_cooperative:
-                summary: Antananarivo's rice cooperative
-                value:
-                  name: Collectivité Vary Atsimo
-                  speciality: Riziculture
-                  location: Antananarivo
-                  creation_date: 2026-01-01
-                  initial_officers:
-                    - member_id: 269a6006-15f7-4fe1-b049-d4c632fc48d9
-                      role: president
-                    - member_id: 961700b3-c67e-4303-85e1-df7f68fe5d54
-                      role: vise_president
-                    - member_id: 38afc87d-a2ba-41db-b8fc-a1df2b96112a
-                      role: treasurer
-                    - member_id: 843f9b7f-4c6d-450f-8813-66a65a93b4c2
-                      role: secretary
-                  initial_member_ids:
-                    - 550e8400-e29b-41d4-a716-446655440000
-                    - 5d6f5a66-cc30-4451-b096-4f45fbd01471
-                    - 7c9e1112-d15b-4c97-b90b-00e04fd430c8
-                    - f47ac10b-58cc-4372-a567-0e02b2c2d294
-                    - 9b3dcff2-5b4a-4f3d-b8c5-00a0c90eabc2
       responses:
-        201:
-          description: Cooperative successfully created
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/CooperativeResponse"
-        400:
+        "201":
+          $ref: "#/components/responses/CooperativeCreated"
+        "400":
           $ref: "#/components/responses/BadRequest"
-        409:
-          description: Cooperative with this name already exists
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        500:
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /cooperatives/{cooperativeId}:
+    parameters:
+      - $ref: "#/components/parameters/CooperativeIdParam"
+    get:
+      operationId: getCooperative
+      summary: Get a cooperative by ID
+      tags: [Cooperatives]
+      responses:
+        "200":
+          $ref: "#/components/responses/CooperativeOK"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+    put:
+      operationId: updateCooperative
+      summary: Update a cooperative
+      tags: [Cooperatives]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CooperativeUpdateRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/CooperativeOK"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
           $ref: "#/components/responses/InternalError"
 
   /cooperatives/{cooperativeId}/members:
@@ -122,30 +121,21 @@ paths:
     get:
       operationId: listCooperativeMembers
       summary: List members of a cooperative
-      description: Returns a paginated list of members
-      tags: [ Members ]
+      tags: [Members]
       parameters:
         - $ref: "#/components/parameters/PageParam"
         - $ref: "#/components/parameters/LimitParam"
         - name: status
           in: query
-          description: Filter by membership status
-          required: false
           schema:
-            $ref: "#/components/schemas/StatusEnum"
+            $ref: "#/components/schemas/MemberStatusEnum"
         - name: role
           in: query
-          description: Filter by member role
-          required: false
           schema:
             $ref: "#/components/schemas/MemberRoleEnum"
       responses:
         "200":
-          description: Paginated list of cooperative members
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/MembershipListResponse"
+          $ref: "#/components/responses/MembershipListOK"
         "404":
           $ref: "#/components/responses/NotFound"
         "500":
@@ -154,47 +144,42 @@ paths:
     post:
       operationId: admitMember
       summary: Admit a new member into a cooperative
-      tags: [ Members ]
+      tags: [Members]
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/MemberAdmissionRequest"
-            examples:
-              new_junior_member:
-                summary: Admission of a new junior member
-                value:
-                  sponsor_id: 287349-238948f-sdf809f-sdfi234
-                  payment_reference: MV-2025-00123
-                  payment_method: mobile_money
-                  member:
-                    first_name: Hery
-                    last_name: Rajao
-                    birth_date: "1995-06-14"
-                    gender: M
-                    address: Lot II K 14, Antananarivo
-                    phone: "+261341234567"
-                    profession: Agriculteur
-                    email: "rajao@gmail.com"
       responses:
-        201:
-          description: Member successfully admitted
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/MembershipResponse"
-        400:
+        "201":
+          $ref: "#/components/responses/MembershipCreated"
+        "400":
           $ref: "#/components/responses/BadRequest"
-        404:
+        "404":
           $ref: "#/components/responses/NotFound"
-        409:
-          description: Member with this email or phone already exists
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        500:
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /cooperatives/{cooperativeId}/members/{memberId}:
+    parameters:
+      - $ref: "#/components/parameters/CooperativeIdParam"
+      - $ref: "#/components/parameters/MemberIdParam"
+
+    get:
+      operationId: getCooperativeMember
+      summary: Get a member of a cooperative
+      tags: [Members]
+      responses:
+        "200":
+          $ref: "#/components/responses/MembershipOK"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
           $ref: "#/components/responses/InternalError"
 
   /cooperatives/{cooperativeId}/members/{memberId}/transfer:
@@ -205,7 +190,7 @@ paths:
     post:
       operationId: transferMember
       summary: Transfer a member to another cooperative
-      tags: [ Members ]
+      tags: [Members]
       requestBody:
         required: true
         content:
@@ -213,74 +198,780 @@ paths:
             schema:
               $ref: "#/components/schemas/MemberTransferRequest"
       responses:
-        200:
-          description: Transfer successful
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/MembershipResponse"
-        400:
+        "200":
+          $ref: "#/components/responses/MembershipOK"
+        "400":
           $ref: "#/components/responses/BadRequest"
-        404:
+        "404":
           $ref: "#/components/responses/NotFound"
-        500:
+        "500":
           $ref: "#/components/responses/InternalError"
 
   /cooperatives/{cooperativeId}/members/{memberId}/resign:
     parameters:
       - $ref: "#/components/parameters/CooperativeIdParam"
       - $ref: "#/components/parameters/MemberIdParam"
+
     post:
       operationId: resignMember
-      summary: Process a member resignation
-      tags: [ Members ]
+      summary: Record a member resignation
+      tags: [Members]
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/MembershipResponse"
+              $ref: "#/components/schemas/MemberResignRequest"
       responses:
-        200:
-          description: Resignation recorded
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/MembershipResponse"
-        404:
+        "200":
+          $ref: "#/components/responses/MembershipOK"
+        "404":
           $ref: "#/components/responses/NotFound"
-        500:
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /cooperatives/{cooperativeId}/mandates:
+    parameters:
+      - $ref: "#/components/parameters/CooperativeIdParam"
+
+    get:
+      operationId: listCooperativeMandates
+      summary: List mandates of a cooperative
+      tags: [Mandates]
+      responses:
+        "200":
+          $ref: "#/components/responses/MandateListOK"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+    post:
+      operationId: createCooperativeMandate
+      summary: Create a new mandate for a cooperative
+      tags: [Mandates]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MandateCreateRequest"
+      responses:
+        "201":
+          $ref: "#/components/responses/MandateCreated"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /cooperatives/{cooperativeId}/mandates/{mandateId}:
+    parameters:
+      - $ref: "#/components/parameters/CooperativeIdParam"
+      - $ref: "#/components/parameters/MandateIdParam"
+
+    get:
+      operationId: getCooperativeMandate
+      summary: Get a mandate by ID
+      tags: [Mandates]
+      responses:
+        "200":
+          $ref: "#/components/responses/MandateOK"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /cooperatives/{cooperativeId}/contributions:
+    parameters:
+      - $ref: "#/components/parameters/CooperativeIdParam"
+
+    get:
+      operationId: listContributions
+      summary: List contributions of a cooperative
+      tags: [Contributions]
+      parameters:
+        - name: member_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: type
+          in: query
+          schema:
+            $ref: "#/components/schemas/ContributionTypeEnum"
+        - $ref: "#/components/parameters/FromDateParam"
+        - $ref: "#/components/parameters/ToDateParam"
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+      responses:
+        "200":
+          $ref: "#/components/responses/ContributionListOK"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+    post:
+      operationId: recordContribution
+      summary: Record a contribution
+      tags: [Contributions]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContributionCreateRequest"
+      responses:
+        "201":
+          $ref: "#/components/responses/ContributionCreated"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /cooperatives/{cooperativeId}/contributions/{contributionId}:
+    parameters:
+      - $ref: "#/components/parameters/CooperativeIdParam"
+      - $ref: "#/components/parameters/ContributionIdParam"
+
+    get:
+      operationId: getContribution
+      summary: Get a contribution by ID
+      tags: [Contributions]
+      responses:
+        "200":
+          $ref: "#/components/responses/ContributionOK"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /cooperatives/{cooperativeId}/accounts:
+    parameters:
+      - $ref: "#/components/parameters/CooperativeIdParam"
+
+    get:
+      operationId: listCooperativeAccounts
+      summary: List accounts of a cooperative
+      tags: [Treasury]
+      parameters:
+        - name: type
+          in: query
+          schema:
+            $ref: "#/components/schemas/AccountTypeEnum"
+      responses:
+        "200":
+          $ref: "#/components/responses/AccountListOK"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+    post:
+      operationId: createCooperativeAccount
+      summary: Create an account for a cooperative
+      tags: [Treasury]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountCreateRequest"
+      responses:
+        "201":
+          $ref: "#/components/responses/AccountCreated"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /cooperatives/{cooperativeId}/accounts/{accountId}:
+    parameters:
+      - $ref: "#/components/parameters/CooperativeIdParam"
+      - $ref: "#/components/parameters/AccountIdParam"
+
+    get:
+      operationId: getCooperativeAccount
+      summary: Get an account with its balance
+      tags: [Treasury]
+      parameters:
+        - name: at_date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          $ref: "#/components/responses/AccountOK"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+    put:
+      operationId: updateCooperativeAccount
+      summary: Update an account
+      tags: [Treasury]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountUpdateRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/AccountOK"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+    delete:
+      operationId: deleteCooperativeAccount
+      summary: Delete an account
+      tags: [Treasury]
+      responses:
+        "204":
+          description: Account deleted
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /cooperatives/{cooperativeId}/activities:
+    parameters:
+      - $ref: "#/components/parameters/CooperativeIdParam"
+
+    get:
+      operationId: listCooperativeActivities
+      summary: List activities of a cooperative
+      tags: [Activities]
+      parameters:
+        - name: type
+          in: query
+          schema:
+            $ref: "#/components/schemas/ActivityTypeEnum"
+        - $ref: "#/components/parameters/FromDateParam"
+        - $ref: "#/components/parameters/ToDateParam"
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+      responses:
+        "200":
+          $ref: "#/components/responses/ActivityListOK"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+    post:
+      operationId: createCooperativeActivity
+      summary: Schedule an activity for a cooperative
+      tags: [Activities]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActivityCreateRequest"
+      responses:
+        "201":
+          $ref: "#/components/responses/ActivityCreated"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /cooperatives/{cooperativeId}/activities/{activityId}:
+    parameters:
+      - $ref: "#/components/parameters/CooperativeIdParam"
+      - $ref: "#/components/parameters/ActivityIdParam"
+
+    get:
+      operationId: getCooperativeActivity
+      summary: Get an activity by ID
+      tags: [Activities]
+      responses:
+        "200":
+          $ref: "#/components/responses/ActivityOK"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+    put:
+      operationId: updateCooperativeActivity
+      summary: Update an activity
+      tags: [Activities]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActivityUpdateRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/ActivityOK"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+    delete:
+      operationId: deleteCooperativeActivity
+      summary: Delete a scheduled activity
+      tags: [Activities]
+      responses:
+        "204":
+          description: Activity deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /cooperatives/{cooperativeId}/activities/{activityId}/attendance:
+    parameters:
+      - $ref: "#/components/parameters/CooperativeIdParam"
+      - $ref: "#/components/parameters/ActivityIdParam"
+
+    get:
+      operationId: getActivityAttendance
+      summary: Get the attendance sheet of an activity
+      tags: [Attendance]
+      responses:
+        "200":
+          $ref: "#/components/responses/AttendanceSheetOK"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+    post:
+      operationId: submitAttendance
+      summary: Submit the attendance sheet of an activity
+      tags: [Attendance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttendanceSubmitRequest"
+      responses:
+        "201":
+          $ref: "#/components/responses/AttendanceSheetCreated"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+    put:
+      operationId: updateAttendance
+      summary: Update an attendance sheet
+      tags: [Attendance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttendanceSubmitRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/AttendanceSheetOK"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /cooperatives/{cooperativeId}/statistics/attendance:
+    parameters:
+      - $ref: "#/components/parameters/CooperativeIdParam"
+
+    get:
+      operationId: getCooperativeAttendanceStats
+      summary: Get attendance statistics for a cooperative
+      tags: [Statistics]
+      parameters:
+        - $ref: "#/components/parameters/FromDateParam"
+        - $ref: "#/components/parameters/ToDateParam"
+      responses:
+        "200":
+          $ref: "#/components/responses/CooperativeAttendanceStatsOK"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /cooperatives/{cooperativeId}/statistics/members:
+    parameters:
+      - $ref: "#/components/parameters/CooperativeIdParam"
+
+    get:
+      operationId: getCooperativeMemberStats
+      summary: Get per-member statistics for a cooperative
+      tags: [Statistics]
+      parameters:
+        - $ref: "#/components/parameters/FromDateParam"
+        - $ref: "#/components/parameters/ToDateParam"
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+      responses:
+        "200":
+          $ref: "#/components/responses/MemberStatsListOK"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /cooperatives/{cooperativeId}/statistics/monthly-report:
+    parameters:
+      - $ref: "#/components/parameters/CooperativeIdParam"
+
+    get:
+      operationId: getCooperativeMonthlyReport
+      summary: Get the monthly report of a cooperative
+      tags: [Statistics]
+      parameters:
+        - $ref: "#/components/parameters/YearParam"
+        - $ref: "#/components/parameters/MonthParam"
+      responses:
+        "200":
+          $ref: "#/components/responses/MonthlyReportOK"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /federation/mandate:
+    get:
+      operationId: getFederationCurrentMandate
+      summary: Get the current federation mandate
+      tags: [Federation]
+      responses:
+        "200":
+          $ref: "#/components/responses/FederationMandateOK"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+    post:
+      operationId: createFederationMandate
+      summary: Create a new federation mandate
+      tags: [Federation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FederationMandateCreateRequest"
+      responses:
+        "201":
+          $ref: "#/components/responses/FederationMandateCreated"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /federation/accounts:
+    get:
+      operationId: listFederationAccounts
+      summary: List federation accounts
+      tags: [Federation]
+      parameters:
+        - name: type
+          in: query
+          schema:
+            $ref: "#/components/schemas/AccountTypeEnum"
+      responses:
+        "200":
+          $ref: "#/components/responses/AccountListOK"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+    post:
+      operationId: createFederationAccount
+      summary: Create a federation account
+      tags: [Federation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountCreateRequest"
+      responses:
+        "201":
+          $ref: "#/components/responses/AccountCreated"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /federation/accounts/{accountId}:
+    parameters:
+      - $ref: "#/components/parameters/AccountIdParam"
+
+    get:
+      operationId: getFederationAccount
+      summary: Get a federation account
+      tags: [Federation]
+      parameters:
+        - name: at_date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          $ref: "#/components/responses/AccountOK"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /federation/activities:
+    get:
+      operationId: listFederationActivities
+      summary: List federation activities
+      tags: [Activities]
+      parameters:
+        - $ref: "#/components/parameters/FromDateParam"
+        - $ref: "#/components/parameters/ToDateParam"
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+      responses:
+        "200":
+          $ref: "#/components/responses/FederationActivityListOK"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+    post:
+      operationId: createFederationActivity
+      summary: Schedule a federation activity
+      tags: [Activities]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FederationActivityCreateRequest"
+      responses:
+        "201":
+          $ref: "#/components/responses/FederationActivityCreated"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /federation/activities/{activityId}:
+    parameters:
+      - $ref: "#/components/parameters/ActivityIdParam"
+
+    get:
+      operationId: getFederationActivity
+      summary: Get a federation activity by ID
+      tags: [Activities]
+      responses:
+        "200":
+          $ref: "#/components/responses/FederationActivityOK"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+    put:
+      operationId: updateFederationActivity
+      summary: Update a federation activity
+      tags: [Activities]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FederationActivityUpdateRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/FederationActivityOK"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+    delete:
+      operationId: deleteFederationActivity
+      summary: Delete a federation activity
+      tags: [Activities]
+      responses:
+        "204":
+          description: Activity deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /federation/statistics/attendance:
+    get:
+      operationId: getFederationAttendanceStats
+      summary: Get attendance statistics per cooperative
+      tags: [Statistics]
+      parameters:
+        - $ref: "#/components/parameters/FromDateParam"
+        - $ref: "#/components/parameters/ToDateParam"
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+      responses:
+        "200":
+          $ref: "#/components/responses/FederationAttendanceStatsOK"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /federation/statistics/contributions:
+    get:
+      operationId: getFederationContributionStats
+      summary: Get contribution compliance statistics per cooperative
+      tags: [Statistics]
+      parameters:
+        - $ref: "#/components/parameters/FromDateParam"
+        - $ref: "#/components/parameters/ToDateParam"
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+      responses:
+        "200":
+          $ref: "#/components/responses/FederationContributionStatsOK"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /federation/statistics/new-members:
+    get:
+      operationId: getFederationNewMembersStats
+      summary: Get new member counts per cooperative
+      tags: [Statistics]
+      parameters:
+        - $ref: "#/components/parameters/FromDateParam"
+        - $ref: "#/components/parameters/ToDateParam"
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+      responses:
+        "200":
+          $ref: "#/components/responses/FederationNewMembersStatsOK"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /federation/statistics/monthly-report:
+    get:
+      operationId: getFederationMonthlyReport
+      summary: Get the federation monthly report
+      tags: [Statistics]
+      parameters:
+        - $ref: "#/components/parameters/YearParam"
+        - $ref: "#/components/parameters/MonthParam"
+      responses:
+        "200":
+          $ref: "#/components/responses/FederationMonthlyReportOK"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /federation/statistics/annual-report:
+    get:
+      operationId: getFederationAnnualReport
+      summary: Get the federation annual report
+      tags: [Statistics]
+      parameters:
+        - $ref: "#/components/parameters/YearParam"
+      responses:
+        "200":
+          $ref: "#/components/responses/FederationAnnualReportOK"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
           $ref: "#/components/responses/InternalError"
 
 components:
-  # Params
+
   parameters:
     CooperativeIdParam:
       name: cooperativeId
       in: path
       required: true
-      description: Unique UUID of the cooperative
       schema:
         type: string
         format: uuid
-        example: "ec471830-514a-4bcc-88a4-9285dea56c34"
 
     MemberIdParam:
       name: memberId
       in: path
       required: true
-      description: Unique UUID of the member
       schema:
         type: string
         format: uuid
-        example: "c691a6ae-f07c-4ec6-80ce-54fc5c417620"
 
-    # Pagination params
+    MandateIdParam:
+      name: mandateId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    AccountIdParam:
+      name: accountId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    ActivityIdParam:
+      name: activityId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    ContributionIdParam:
+      name: contributionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
     PageParam:
       name: page
       in: query
-      required: false
-      description: Page number for pagination (1-indexed)
       schema:
         type: integer
         minimum: 1
@@ -289,153 +980,163 @@ components:
     LimitParam:
       name: limit
       in: query
-      required: false
-      description: Number of results per page
       schema:
         type: integer
         minimum: 1
         maximum: 100
         default: 20
 
+    FromDateParam:
+      name: from
+      in: query
+      required: true
+      schema:
+        type: string
+        format: date
+
+    ToDateParam:
+      name: to
+      in: query
+      required: true
+      schema:
+        type: string
+        format: date
+
+    YearParam:
+      name: year
+      in: query
+      required: true
+      schema:
+        type: integer
+
+    MonthParam:
+      name: month
+      in: query
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 12
+
   schemas:
-    # Enums
+
     StatusEnum:
       type: string
-      enum: [ active, inactive ]
+      enum: [active, inactive]
       default: active
-      description: Operational status used across multiple entities
+
+    MemberStatusEnum:
+      type: string
+      enum: [active, resigned, transferred]
 
     GenderEnum:
       type: string
-      enum: [ M, F ]
-      description: Member gender – Male or Female
+      enum: [M, F]
 
     PaymentMethodEnum:
       type: string
-      enum: [ cash, bank_transfer, mobile_money ]
-      description: Accepted payment methods for contributions and admission fees
+      enum: [cash, bank_transfer, mobile_money]
 
     OfficerRoleEnum:
       type: string
-      enum: [ president, vice_president, treasurer, secretary ]
-      description: Leadership roles assigned per mandate within a cooperative
+      enum: [president, vice_president, treasurer, secretary]
 
     MemberRoleEnum:
       type: string
-      enum: [ confirmed_member, junior_member ]
+      enum: [confirmed_member, junior_member]
       default: junior_member
-      description: Junior member new admitted and confirmed member experienced member
+
+    ContributionTypeEnum:
+      type: string
+      enum: [monthly, annual, one_time]
+
+    AccountTypeEnum:
+      type: string
+      enum: [cash, bank, mobile_money]
+
+    ActivityTypeEnum:
+      type: string
+      enum: [general_assembly, junior_training, exceptional]
+
+    MandatoryForEnum:
+      type: string
+      enum: [all, juniors, specific_members, none]
+
+    AttendanceStatusEnum:
+      type: string
+      enum: [present, absent, excused, visitor]
+
+    BankNameEnum:
+      type: string
+      enum: [BRED, MCB, BMOI, BOA, BGFI, AFG, ACCES_BANQUE, BAOBAB, SIPEM]
+
+    MobileMoneyServiceEnum:
+      type: string
+      enum: [Orange_Money, Mvola, Airtel_Money]
 
     PaginationMeta:
       type: object
-      description: Paginated list responses
       properties:
         page:
           type: integer
-          example: 1
         limit:
           type: integer
-          example: 20
+        total:
+          type: integer
+        total_pages:
+          type: integer
 
-    # Schema validation
-    Cooperative:
+    ResourceId:
       type: object
-      description: Core fields shared by create and response schemas
-      required: [ name, specialty, location, creation_date ]
+      required: [id]
+      properties:
+        id:
+          type: string
+          format: uuid
+
+    Timestamps:
+      type: object
+      properties:
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    Period:
+      type: object
+      properties:
+        period_from:
+          type: string
+          format: date
+        period_to:
+          type: string
+          format: date
+
+    CooperativeBase:
+      type: object
+      required: [name, speciality, location, creation_date]
       properties:
         name:
           type: string
           maxLength: 50
-          description: Unique name of the cooperative
-          example: "Collectivité Vary Atsimo"
-        specialty:
+        speciality:
           type: string
           maxLength: 80
-          description: Agricultural specialty of the cooperative
-          example: "Riziculture"
         location:
           type: string
-          maxLength: 30
-          description: City where the cooperative operates
-          example: "Antananarivo"
+          maxLength: 50
         creation_date:
           type: string
-          format: date-time
-          description: Official founding date of the cooperative
-        status:
-          $ref: "#/components/schemas/StatusEnum"
-
-    MemberPersonalInfo:
-      type: object
-      description: Personal information required for all member registrations
-      required:
-        - first_name
-        - last_name
-        - birth_date
-        - gender
-        - address
-        - phone
-        - profession
-        - email
-      properties:
-        first_name:
-          type: string
-          maxLength: 50
-          example: "Hery"
-        last_name:
-          type: string
-          maxLength: 50
-          example: "Rakoto"
-        birth_date:
-          type: string
           format: date
-          example: "1995-06-14"
-        gender:
-          $ref: "#/components/schemas/GenderEnum"
-        address:
-          type: string
-          maxLength: 100
-          example: "Lot II K 14, Antananarivo"
-        phone:
-          type: string
-          maxLength: 15
-          description: Unique phone number
-          example: "+261341234567"
-        profession:
-          type: string
-          maxLength: 50
-          example: "Agriculteur"
-        email:
-          type: string
-          format: email
-          maxLength: 100
-          example: "heryrajaonarimampianina@yahoo.com"
-        role:
-          $ref: "#/components/schemas/MemberRoleEnum"
-        created_at:
-          type: string
-          format: date-time
-
-    Administration:
-      type: object
-      description: Cooperative administration
-      required: [ mandate_end, mandate_start, status ]
-      properties:
-        mandate_start:
-          type: string
-          format: date
-          example: "2025-01-15"
-        mandate_end:
-          type: string
-          format: date
-          example: "2026-01-15"
-        status:
-          $ref: "#/components/schemas/StatusEnum"
+        annual_mandatory_contribution_amount:
+          type: number
 
     OfficerAssignment:
       type: object
-      description: Maps a member to a leadership role for the initial mandate
-      required: [ member_id, role ]
+      required: [member_id, role]
       properties:
         member_id:
           type: string
@@ -443,200 +1144,1013 @@ components:
         role:
           $ref: "#/components/schemas/OfficerRoleEnum"
 
-    # Body Request
     CooperativeCreateRequest:
       allOf:
-        - $ref: "#/components/schemas/Cooperative"
-          type: object
-          required: [ initial_officers, initial_member_ids ]
+        - $ref: "#/components/schemas/CooperativeBase"
+        - type: object
+          required: [initial_officers, initial_member_ids, federation_approval_reference]
           properties:
+            federation_approval_reference:
+              type: string
             initial_officers:
               type: array
-              description: The four officers for the first mandate.
-              minItems: 5
+              minItems: 4
+              maxItems: 4
               items:
                 $ref: "#/components/schemas/OfficerAssignment"
             initial_member_ids:
               type: array
-              description: UUIDs of all founding members
               minItems: 10
               items:
                 type: string
                 format: uuid
 
-    MemberAdmissionRequest:
+    CooperativeUpdateRequest:
       type: object
-      description: |
-        Payload to admit a new member into a cooperative.
-        Admission fee of 50,000 MGA must be settled before submission.
-      required: [ sponsor_id, payment_reference, payment_method, member ]
       properties:
-        sponsor_id:
+        speciality:
+          type: string
+          maxLength: 80
+        location:
+          type: string
+          maxLength: 50
+        annual_mandatory_contribution_amount:
+          type: number
+        status:
+          $ref: "#/components/schemas/StatusEnum"
+
+    CooperativeResponse:
+      allOf:
+        - $ref: "#/components/schemas/ResourceId"
+        - $ref: "#/components/schemas/CooperativeBase"
+        - $ref: "#/components/schemas/Timestamps"
+        - type: object
+          properties:
+            status:
+              $ref: "#/components/schemas/StatusEnum"
+
+    MemberPersonalInfo:
+      type: object
+      required: [first_name, last_name, birth_date, gender, address, phone, profession, email]
+      properties:
+        first_name:
+          type: string
+          maxLength: 50
+        last_name:
+          type: string
+          maxLength: 50
+        birth_date:
+          type: string
+          format: date
+        gender:
+          $ref: "#/components/schemas/GenderEnum"
+        address:
+          type: string
+          maxLength: 150
+        phone:
+          type: string
+          maxLength: 15
+        profession:
+          type: string
+          maxLength: 80
+        email:
+          type: string
+          format: email
+
+    SponsorInfo:
+      type: object
+      required: [member_id, relationship]
+      properties:
+        member_id:
           type: string
           format: uuid
-          description: UUID of the confirmed_member.
-          example: "e68d1b0d-0992-4ad1-98a1-b98e524fd6c9"
+        relationship:
+          type: string
+          maxLength: 100
+
+    PaymentInfo:
+      type: object
+      required: [payment_method, amount]
+      properties:
         payment_reference:
           type: string
-          description: Transaction reference for the 50,000 MGA admission fee
-          example: "MV-2025-00123"
         payment_method:
           $ref: "#/components/schemas/PaymentMethodEnum"
+        amount:
+          type: number
+
+    MemberAdmissionRequest:
+      type: object
+      required: [sponsors, admission_payment, annual_contribution_payment, member]
+      properties:
+        sponsors:
+          type: array
+          minItems: 2
+          items:
+            $ref: "#/components/schemas/SponsorInfo"
+        admission_payment:
+          $ref: "#/components/schemas/PaymentInfo"
+        annual_contribution_payment:
+          $ref: "#/components/schemas/PaymentInfo"
         member:
           $ref: "#/components/schemas/MemberPersonalInfo"
 
     MemberTransferRequest:
       type: object
-      description: Request to move a member to a different cooperative
-      required: [ target_cooperative_id ]
+      required: [target_cooperative_id]
       properties:
         target_cooperative_id:
           type: string
           format: uuid
-          description: UUID of the cooperative
-          example: "374923-27389472-sdfk-2342"
         reason:
           type: string
-          description: Optional reason
           maxLength: 255
-          example: "Moving to another town"
 
-    # Responses
-    CooperativeResponse:
-      allOf:
-        - $ref: "#/components/schemas/Cooperative"
-        - type: object
-          required: [ id, status, created_at ]
-          properties:
-            id:
-              type: string
-              format: uuid
-              description: Auto-generated unique identifier
-              example: "fd175750-74af-4e03-ab17-0dc2c633726e"
-            status:
-              $ref: "#/components/schemas/StatusEnum"
-            created_at:
-              type: string
-              format: date-time
-              description: Timestamp when the cooperative was registered
-
-    CooperativeListResponse:
+    MemberResignRequest:
       type: object
       properties:
-        data:
-          type: array
-          items:
-            $ref: "#/components/schemas/CooperativeResponse"
-        meta:
-          $ref: "#/components/schemas/PaginationMeta"
+        reason:
+          type: string
+          maxLength: 255
+        resignation_date:
+          type: string
+          format: date
 
     MemberResponse:
       allOf:
+        - $ref: "#/components/schemas/ResourceId"
         - $ref: "#/components/schemas/MemberPersonalInfo"
-        - type: object
-          required: [ id, created_at ]
-          properties:
-            id:
-              type: string
-              format: uuid
-              example: "0cc79802-07d8-4124-b01a-fdaea386ed2d"
-            created_at:
-              type: string
-              format: date-time
+        - $ref: "#/components/schemas/Timestamps"
 
     MembershipResponse:
+      allOf:
+        - $ref: "#/components/schemas/ResourceId"
+        - type: object
+          required: [cooperative_id, member, joined_at, status]
+          properties:
+            cooperative_id:
+              type: string
+              format: uuid
+            member:
+              $ref: "#/components/schemas/MemberResponse"
+            role:
+              $ref: "#/components/schemas/MemberRoleEnum"
+            joined_at:
+              type: string
+              format: date-time
+            status:
+              $ref: "#/components/schemas/MemberStatusEnum"
+            resigned_at:
+              type: string
+              format: date-time
+              nullable: true
+            transferred_to:
+              type: string
+              format: uuid
+              nullable: true
+
+    MandateCreateRequest:
       type: object
-      description: A membership record linking a member to a cooperative
-      required: [ id, cooperative_id, member, joined_at, status ]
+      required: [year, officers]
       properties:
-        id:
+        year:
+          type: integer
+        officers:
+          type: array
+          minItems: 4
+          maxItems: 4
+          items:
+            $ref: "#/components/schemas/OfficerAssignment"
+
+    MandateResponse:
+      allOf:
+        - $ref: "#/components/schemas/ResourceId"
+        - $ref: "#/components/schemas/Timestamps"
+        - type: object
+          required: [cooperative_id, year, mandate_start, mandate_end, officers, status]
+          properties:
+            cooperative_id:
+              type: string
+              format: uuid
+            year:
+              type: integer
+            mandate_start:
+              type: string
+              format: date
+            mandate_end:
+              type: string
+              format: date
+            officers:
+              type: array
+              items:
+                $ref: "#/components/schemas/OfficerAssignment"
+            status:
+              $ref: "#/components/schemas/StatusEnum"
+
+    FederationMandateCreateRequest:
+      type: object
+      required: [start_date, end_date, officers]
+      properties:
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        officers:
+          type: array
+          minItems: 4
+          maxItems: 4
+          items:
+            $ref: "#/components/schemas/OfficerAssignment"
+
+    FederationMandateResponse:
+      allOf:
+        - $ref: "#/components/schemas/ResourceId"
+        - $ref: "#/components/schemas/Timestamps"
+        - type: object
+          required: [start_date, end_date, officers, status]
+          properties:
+            start_date:
+              type: string
+              format: date
+            end_date:
+              type: string
+              format: date
+            officers:
+              type: array
+              items:
+                $ref: "#/components/schemas/OfficerAssignment"
+            status:
+              $ref: "#/components/schemas/StatusEnum"
+
+    ContributionCreateRequest:
+      type: object
+      required: [member_id, type, amount, payment_method, collection_date]
+      properties:
+        member_id:
           type: string
           format: uuid
-          description: UUID of the membership record
+        type:
+          $ref: "#/components/schemas/ContributionTypeEnum"
+        amount:
+          type: number
+        payment_method:
+          $ref: "#/components/schemas/PaymentMethodEnum"
+        payment_reference:
+          type: string
+        collection_date:
+          type: string
+          format: date
+        reason:
+          type: string
+          maxLength: 255
+
+    ContributionResponse:
+      allOf:
+        - $ref: "#/components/schemas/ResourceId"
+        - $ref: "#/components/schemas/Timestamps"
+        - type: object
+          required: [cooperative_id, member_id, type, amount, payment_method, collection_date]
+          properties:
+            cooperative_id:
+              type: string
+              format: uuid
+            member_id:
+              type: string
+              format: uuid
+            type:
+              $ref: "#/components/schemas/ContributionTypeEnum"
+            amount:
+              type: number
+            currency:
+              type: string
+              default: MGA
+            payment_method:
+              $ref: "#/components/schemas/PaymentMethodEnum"
+            payment_reference:
+              type: string
+              nullable: true
+            collection_date:
+              type: string
+              format: date
+            reason:
+              type: string
+              nullable: true
+            federation_share_amount:
+              type: number
+              nullable: true
+
+    AccountCreateRequest:
+      type: object
+      required: [type]
+      properties:
+        type:
+          $ref: "#/components/schemas/AccountTypeEnum"
+        holder_name:
+          type: string
+          maxLength: 100
+        bank_name:
+          $ref: "#/components/schemas/BankNameEnum"
+        account_number:
+          type: string
+          pattern: "^[0-9]{23}$"
+        service_name:
+          $ref: "#/components/schemas/MobileMoneyServiceEnum"
+        phone_number:
+          type: string
+          maxLength: 15
+        initial_balance:
+          type: number
+          default: 0
+
+    AccountUpdateRequest:
+      type: object
+      properties:
+        holder_name:
+          type: string
+          maxLength: 100
+        bank_name:
+          $ref: "#/components/schemas/BankNameEnum"
+        service_name:
+          $ref: "#/components/schemas/MobileMoneyServiceEnum"
+        phone_number:
+          type: string
+          maxLength: 15
+
+    AccountResponse:
+      allOf:
+        - $ref: "#/components/schemas/ResourceId"
+        - $ref: "#/components/schemas/Timestamps"
+        - type: object
+          required: [type, balance, currency]
+          properties:
+            type:
+              $ref: "#/components/schemas/AccountTypeEnum"
+            holder_name:
+              type: string
+              nullable: true
+            bank_name:
+              type: string
+              nullable: true
+            account_number:
+              type: string
+              nullable: true
+            service_name:
+              type: string
+              nullable: true
+            phone_number:
+              type: string
+              nullable: true
+            balance:
+              type: number
+            currency:
+              type: string
+              default: MGA
+            balance_date:
+              type: string
+              format: date
+
+    ActivityBase:
+      type: object
+      required: [title, date, type, mandatory_for]
+      properties:
+        title:
+          type: string
+          maxLength: 150
+        date:
+          type: string
+          format: date
+        type:
+          $ref: "#/components/schemas/ActivityTypeEnum"
+        mandatory_for:
+          $ref: "#/components/schemas/MandatoryForEnum"
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+        recurrence:
+          type: string
+          maxLength: 100
+          nullable: true
+        specific_member_ids:
+          type: array
+          nullable: true
+          items:
+            type: string
+            format: uuid
+
+    ActivityCreateRequest:
+      $ref: "#/components/schemas/ActivityBase"
+
+    ActivityUpdateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 150
+        date:
+          type: string
+          format: date
+        description:
+          type: string
+          maxLength: 500
+        mandatory_for:
+          $ref: "#/components/schemas/MandatoryForEnum"
+        specific_member_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    ActivityResponse:
+      allOf:
+        - $ref: "#/components/schemas/ResourceId"
+        - $ref: "#/components/schemas/ActivityBase"
+        - $ref: "#/components/schemas/Timestamps"
+        - type: object
+          required: [cooperative_id]
+          properties:
+            cooperative_id:
+              type: string
+              format: uuid
+
+    FederationActivityCreateRequest:
+      type: object
+      required: [title, date, mandatory]
+      properties:
+        title:
+          type: string
+          maxLength: 150
+        date:
+          type: string
+          format: date
+        mandatory:
+          type: boolean
+        invited_cooperative_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+        description:
+          type: string
+          maxLength: 500
+
+    FederationActivityUpdateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 150
+        date:
+          type: string
+          format: date
+        mandatory:
+          type: boolean
+        invited_cooperative_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+        description:
+          type: string
+          maxLength: 500
+
+    FederationActivityResponse:
+      allOf:
+        - $ref: "#/components/schemas/ResourceId"
+        - $ref: "#/components/schemas/FederationActivityCreateRequest"
+        - $ref: "#/components/schemas/Timestamps"
+
+    AttendanceRecord:
+      type: object
+      required: [member_id, status]
+      properties:
+        member_id:
+          type: string
+          format: uuid
+        status:
+          $ref: "#/components/schemas/AttendanceStatusEnum"
+        excuse_reason:
+          type: string
+          maxLength: 255
+          nullable: true
+        visitor_cooperative_id:
+          type: string
+          format: uuid
+          nullable: true
+
+    AttendanceSubmitRequest:
+      type: object
+      required: [records]
+      properties:
+        records:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/AttendanceRecord"
+
+    AttendanceSheetResponse:
+      allOf:
+        - $ref: "#/components/schemas/ResourceId"
+        - $ref: "#/components/schemas/Timestamps"
+        - type: object
+          required: [activity_id, cooperative_id, records]
+          properties:
+            activity_id:
+              type: string
+              format: uuid
+            cooperative_id:
+              type: string
+              format: uuid
+            records:
+              type: array
+              items:
+                $ref: "#/components/schemas/AttendanceRecord"
+            total_present:
+              type: integer
+            total_excused:
+              type: integer
+            total_absent:
+              type: integer
+            total_visitors:
+              type: integer
+
+    CooperativeAttendanceStatsResponse:
+      allOf:
+        - $ref: "#/components/schemas/Period"
+        - type: object
+          properties:
+            cooperative_id:
+              type: string
+              format: uuid
+            overall_attendance_rate:
+              type: number
+              format: float
+            total_members:
+              type: integer
+            total_activities:
+              type: integer
+
+    MemberStats:
+      type: object
+      properties:
+        member_id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        attendance_rate:
+          type: number
+          format: float
+        total_paid:
+          type: number
+        total_unpaid:
+          type: number
+
+    MemberStatsListResponse:
+      allOf:
+        - $ref: "#/components/schemas/Period"
+        - type: object
+          properties:
+            cooperative_id:
+              type: string
+              format: uuid
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/MemberStats"
+            meta:
+              $ref: "#/components/schemas/PaginationMeta"
+
+    MonthlyReportResponse:
+      type: object
+      properties:
         cooperative_id:
           type: string
           format: uuid
-        member:
-          $ref: "#/components/schemas/MemberResponse"
-        role:
-          $ref: "#/components/schemas/MemberRoleEnum"
-        joined_at:
+        year:
+          type: integer
+        month:
+          type: integer
+        overall_attendance_rate:
+          type: number
+          format: float
+        total_active_members:
+          type: integer
+
+    CooperativeStatEntry:
+      type: object
+      properties:
+        cooperative_id:
+          type: string
+          format: uuid
+        cooperative_name:
+          type: string
+        attendance_rate:
+          type: number
+          format: float
+        members_up_to_date_percentage:
+          type: number
+          format: float
+        new_members_count:
+          type: integer
+        total_active_members:
+          type: integer
+
+    FederationStatsListResponse:
+      allOf:
+        - $ref: "#/components/schemas/Period"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/CooperativeStatEntry"
+            meta:
+              $ref: "#/components/schemas/PaginationMeta"
+
+    FederationTotals:
+      type: object
+      properties:
+        total_cooperatives:
+          type: integer
+        total_active_members:
+          type: integer
+        average_attendance_rate:
+          type: number
+          format: float
+        average_members_up_to_date_percentage:
+          type: number
+          format: float
+
+    FederationMonthlyReportResponse:
+      type: object
+      properties:
+        year:
+          type: integer
+        month:
+          type: integer
+        generated_at:
           type: string
           format: date-time
-          description: Timestamp when the member joined this cooperative
-        status:
-          $ref: "#/components/schemas/StatusEnum"
-
-    MembershipListResponse:
-      type: object
-      properties:
-        data:
+        cooperatives:
           type: array
           items:
-            $ref: "#/components/schemas/MembershipResponse"
-        meta:
-          $ref: "#/components/schemas/PaginationMeta"
+            $ref: "#/components/schemas/CooperativeStatEntry"
+        totals:
+          $ref: "#/components/schemas/FederationTotals"
 
-    SuccessResponse:
+    FederationAnnualReportResponse:
       type: object
-      description: Standard success payload returned on request success
       properties:
-        message:
+        year:
+          type: integer
+        generated_at:
           type: string
-          description: Success response message
-          example: Cooperative successfully created
+          format: date-time
+        cooperatives:
+          type: array
+          items:
+            $ref: "#/components/schemas/CooperativeStatEntry"
+        top_cooperative:
+          $ref: "#/components/schemas/CooperativeStatEntry"
+        monthly_breakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/FederationMonthlyReportResponse"
+        totals:
+          $ref: "#/components/schemas/FederationTotals"
 
     ErrorResponse:
       type: object
-      description: Standard error payload returned on all 4xx and 5xx responses
-      required: [ code, message ]
+      required: [code, message]
       properties:
         code:
           type: string
-          description: Machine-readable error cod
-          example: MEMBER_NOT_FOUND
         message:
           type: string
-          description: Human-readable error description
-          example: A cooperative already exists with this name
         details:
           type: array
-          description: Optional list of field-level validation errors
           items:
             type: object
             properties:
               field:
                 type: string
-                example: name
               issue:
                 type: string
-                example: "must be unique"
 
   responses:
-    OK:
-      description: All is OK
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/SuccessResponse"
 
     BadRequest:
-      description: 400 - Malformed request - Client error
+      description: Bad request
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/ErrorResponse"
 
     NotFound:
-      description: 404 – Requested resource does not exist
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    Conflict:
+      description: Resource already exists
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    UnprocessableEntity:
+      description: Business rule violation
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/ErrorResponse"
 
     InternalError:
-      description: 500 – Unexpected server error
+      description: Internal server error
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/ErrorResponse"
+
+    CooperativeOK:
+      description: Cooperative retrieved
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CooperativeResponse"
+
+    CooperativeCreated:
+      description: Cooperative created
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CooperativeResponse"
+
+    CooperativeListOK:
+      description: List of cooperatives
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CooperativeResponse"
+              meta:
+                $ref: "#/components/schemas/PaginationMeta"
+
+    MembershipOK:
+      description: Membership retrieved
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MembershipResponse"
+
+    MembershipCreated:
+      description: Member admitted
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MembershipResponse"
+
+    MembershipListOK:
+      description: List of memberships
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MembershipResponse"
+              meta:
+                $ref: "#/components/schemas/PaginationMeta"
+
+    MandateOK:
+      description: Mandate retrieved
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MandateResponse"
+
+    MandateCreated:
+      description: Mandate created
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MandateResponse"
+
+    MandateListOK:
+      description: List of mandates
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MandateResponse"
+              meta:
+                $ref: "#/components/schemas/PaginationMeta"
+
+    ContributionOK:
+      description: Contribution retrieved
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ContributionResponse"
+
+    ContributionCreated:
+      description: Contribution recorded
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ContributionResponse"
+
+    ContributionListOK:
+      description: List of contributions
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ContributionResponse"
+              meta:
+                $ref: "#/components/schemas/PaginationMeta"
+
+    AccountOK:
+      description: Account retrieved
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AccountResponse"
+
+    AccountCreated:
+      description: Account created
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AccountResponse"
+
+    AccountListOK:
+      description: List of accounts
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AccountResponse"
+
+    ActivityOK:
+      description: Activity retrieved
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ActivityResponse"
+
+    ActivityCreated:
+      description: Activity created
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ActivityResponse"
+
+    ActivityListOK:
+      description: List of activities
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityResponse"
+              meta:
+                $ref: "#/components/schemas/PaginationMeta"
+
+    FederationActivityOK:
+      description: Federation activity retrieved
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FederationActivityResponse"
+
+    FederationActivityCreated:
+      description: Federation activity created
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FederationActivityResponse"
+
+    FederationActivityListOK:
+      description: List of federation activities
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FederationActivityResponse"
+              meta:
+                $ref: "#/components/schemas/PaginationMeta"
+
+    AttendanceSheetOK:
+      description: Attendance sheet retrieved
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AttendanceSheetResponse"
+
+    AttendanceSheetCreated:
+      description: Attendance sheet recorded
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AttendanceSheetResponse"
+
+    CooperativeAttendanceStatsOK:
+      description: Cooperative attendance statistics
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CooperativeAttendanceStatsResponse"
+
+    MemberStatsListOK:
+      description: Per-member statistics
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MemberStatsListResponse"
+
+    MonthlyReportOK:
+      description: Cooperative monthly report
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MonthlyReportResponse"
+
+    FederationMandateOK:
+      description: Federation mandate retrieved
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FederationMandateResponse"
+
+    FederationMandateCreated:
+      description: Federation mandate created
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FederationMandateResponse"
+
+    FederationAttendanceStatsOK:
+      description: Federation attendance statistics per cooperative
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FederationStatsListResponse"
+
+    FederationContributionStatsOK:
+      description: Federation contribution compliance statistics
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FederationStatsListResponse"
+
+    FederationNewMembersStatsOK:
+      description: New member counts per cooperative
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FederationStatsListResponse"
+
+    FederationMonthlyReportOK:
+      description: Federation monthly report
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FederationMonthlyReportResponse"
+
+    FederationAnnualReportOK:
+      description: Federation annual report
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FederationAnnualReportResponse"
