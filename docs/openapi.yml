@@ -67,7 +67,7 @@ paths:
     post:
       operationId: createCooperative
       summary: Request the opening of a new cooperative
-      tags: [ Cooperative ]
+      tags: [ Cooperatives ]
       requestBody:
         required: true
         content:
@@ -83,21 +83,20 @@ paths:
                   location: Antananarivo
                   creation_date: 2026-01-01
                   initial_officers:
-                    - member_id: 12345678-qwertyui-1278378-2930
+                    - member_id: 269a6006-15f7-4fe1-b049-d4c632fc48d9
                       role: president
-                    - member_id: 12837889-3847982-83479-23748
+                    - member_id: 961700b3-c67e-4303-85e1-df7f68fe5d54
                       role: vise_president
-                    - member_id: 293480239-2983492838-2349-sdfis
+                    - member_id: 38afc87d-a2ba-41db-b8fc-a1df2b96112a
                       role: treasurer
-                    - member_id: 2374923-839248023-239482-234923
+                    - member_id: 843f9b7f-4c6d-450f-8813-66a65a93b4c2
                       role: secretary
                   initial_member_ids:
-                    - 293840923-238948239-3942042903840943
-                    - 98237489-2389489-djfklsdj-23892jklsj
-                    - 9830294-23948239kjdf-2384928-sfsfjkd
-                    - 923489-s89789-sdf89789-s8d9f789sdf89
-                    - 2384789-28934082093-8234789-dfosifio
-                    - 90238409-283049238-283948-slfjskldjj
+                    - 550e8400-e29b-41d4-a716-446655440000
+                    - 5d6f5a66-cc30-4451-b096-4f45fbd01471
+                    - 7c9e1112-d15b-4c97-b90b-00e04fd430c8
+                    - f47ac10b-58cc-4372-a567-0e02b2c2d294
+                    - 9b3dcff2-5b4a-4f3d-b8c5-00a0c90eabc2
       responses:
         201:
           description: Cooperative successfully created
@@ -209,7 +208,7 @@ components:
       schema:
         type: string
         format: uuid
-        example: "c1d2e3f4-0000-0000-0000-000000000001"
+        example: "ec471830-514a-4bcc-88a4-9285dea56c34"
 
     MemberIdParam:
       name: memberId
@@ -219,7 +218,7 @@ components:
       schema:
         type: string
         format: uuid
-        example: "a1b2c3d4-0000-0000-0000-000000000001"
+        example: "c691a6ae-f07c-4ec6-80ce-54fc5c417620"
 
     # Pagination params
     PageParam:
@@ -421,7 +420,7 @@ components:
           type: string
           format: uuid
           description: UUID of the confirmed_member.
-          example: "8279-23490c-sjdfhjk-3840923"
+          example: "e68d1b0d-0992-4ad1-98a1-b98e524fd6c9"
         payment_reference:
           type: string
           description: Transaction reference for the 50,000 MGA admission fee
@@ -442,7 +441,7 @@ components:
               type: string
               format: uuid
               description: Auto-generated unique identifier
-              example: "c1d2e3f4-0000-0000-0000"
+              example: "fd175750-74af-4e03-ab17-0dc2c633726e"
             status:
               $ref: "#/components/schemas/StatusEnum"
             created_at:
@@ -469,7 +468,7 @@ components:
             id:
               type: string
               format: uuid
-              example: "a1b2c3d4-0000-0000-0000-000000000001"
+              example: "0cc79802-07d8-4124-b01a-fdaea386ed2d"
             created_at:
               type: string
               format: date-time

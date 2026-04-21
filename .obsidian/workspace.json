@@ -15,9 +15,9 @@
               "state": {
                 "file": "docs/AGRICULTURAL_FEDERATION.canvas",
                 "viewState": {
-                  "x": 463.5,
-                  "y": 20,
-                  "zoom": -2.11179780955746
+                  "x": 1156.3780082870328,
+                  "y": -272.0888513230584,
+                  "zoom": -1.144239958034298
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -81,7 +81,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "c94d93adc7151086",
